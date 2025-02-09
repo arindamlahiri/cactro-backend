@@ -80,16 +80,25 @@ app.get(
 			return reply.status(400).send(validationResult.error);
 		}
 
-		const dbResponse = await db
+		const [cacheObj] = await db
 			.select({ key: cache.key, value: cache.value })
 			.from(cache)
 			.where(and(eq(cache.key, key), eq(cache.isDeleted, false)));
 
-		if (dbResponse.length === 0) {
+		if (!cacheObj) {
 			return reply.status(404).send('Not found');
 		}
 
-		return reply.status(200).send(dbResponse[0].value);
+		const parsedValue = isNaN(Number(cacheObj.value))
+			? cacheObj.value
+			: Number(cacheObj.value);
+
+		const response = {
+			key: cacheObj.key,
+			value: parsedValue
+		};
+
+		return reply.status(200).send(response);
 	}
 );
 
