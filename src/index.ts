@@ -68,12 +68,12 @@ app.post(
 			return reply.status(400).send(validationResult.error);
 		}
 
-		const [{ key: existingKey }] = await db
+		const [existingCache] = await db
 			.select({ key: cache.key })
 			.from(cache)
 			.where(and(eq(cache.key, key), eq(cache.isDeleted, false)));
 
-		if (!existingKey) {
+		if (!existingCache) {
 			// Key does not exist so max size validation is required
 			const [{ cacheCount }] = await db
 				.select({ cacheCount: count() })
