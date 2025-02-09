@@ -31,9 +31,9 @@ const envSchema = {
 
 app.get('/', (req, reply) => {
 	return reply.send(`The following endpoints are available:
-    -   POST /cache: Insert a new cache item
-    -   GET /cache/:key: Get a cache item by key
-    -   DELETE /cache/:key: Delete a cache item by key);
+    -   POST /cache - Insert a new cache item
+    -   GET /cache/:key - Get a cache item by key
+    -   DELETE /cache/:key - Delete a cache item by key
     `);
 });
 
