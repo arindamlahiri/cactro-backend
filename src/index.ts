@@ -10,9 +10,9 @@ const app = fastify({
 
 const envSchema = {
 	type: 'object',
-	required: ['TEST'],
+	required: ['DATABASE_URL'],
 	properties: {
-		TEST: {
+		DATABASE_URL: {
 			type: 'string'
 		}
 	}
