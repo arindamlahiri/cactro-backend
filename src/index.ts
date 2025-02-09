@@ -93,7 +93,7 @@ app.post(
 			set: cacheData
 		});
 
-		return reply.status(201).send('Created');
+		return reply.status(201).send(existingCache ? 'Updated' : 'Created');
 	}
 );
 
