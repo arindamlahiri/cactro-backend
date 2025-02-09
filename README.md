@@ -41,3 +41,7 @@ curl -X GET https://cactro-backend.onrender.com/cache/my-key
 ```bash
 curl -X DELETE https://cactro-backend.onrender.com/cache/my-key
 ```
+
+## Updates since demo video
+
+-   There was a bug in the POST route where the max size validation was in place even for update requests so existing cache items could not be updated when the cache was full. This has been fixed.
