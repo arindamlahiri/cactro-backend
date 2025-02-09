@@ -2,13 +2,15 @@ import fastify, { FastifyRequest } from 'fastify';
 import fastifyEnv from '@fastify/env';
 import { z } from 'zod';
 import { cache } from './schema';
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import { drizzle, NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
 let db: NeonHttpDatabase<Record<string, never>> & {
 	$client: NeonQueryFunction<false, false>;
 };
+
+const MAX_CACHE_SIZE = 10;
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 const host = 'RENDER' in process.env ? `0.0.0.0` : `localhost`;
@@ -56,6 +58,15 @@ app.post(
 
 		if (!validationResult.success) {
 			return reply.status(400).send(validationResult.error);
+		}
+
+		const [{ cacheCount }] = await db
+			.select({ cacheCount: count() })
+			.from(cache)
+			.where(eq(cache.isDeleted, false));
+
+		if (cacheCount >= MAX_CACHE_SIZE) {
+			return reply.status(400).send('Cache limit exceeded');
 		}
 
 		const cacheData = { key, value, isDeleted: false };
