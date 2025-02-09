@@ -68,15 +68,24 @@ app.post(
 			return reply.status(400).send(validationResult.error);
 		}
 
-		const [{ cacheCount }] = await db
-			.select({ cacheCount: count() })
+		const [{ key: existingKey }] = await db
+			.select({ key: cache.key })
 			.from(cache)
-			.where(eq(cache.isDeleted, false));
+			.where(and(eq(cache.key, key), eq(cache.isDeleted, false)));
 
-		if (cacheCount >= MAX_CACHE_SIZE) {
-			return reply.status(400).send('Cache limit exceeded');
+		if (!existingKey) {
+			// Key does not exist so max size validation is required
+			const [{ cacheCount }] = await db
+				.select({ cacheCount: count() })
+				.from(cache)
+				.where(eq(cache.isDeleted, false));
+
+			if (cacheCount >= MAX_CACHE_SIZE) {
+				return reply.status(400).send('Cache limit exceeded');
+			}
 		}
 
+		// If key exists then this is a update request so max size validation is not required
 		const cacheData = { key, value, isDeleted: false };
 
 		await db.insert(cache).values(cacheData).onConflictDoUpdate({
